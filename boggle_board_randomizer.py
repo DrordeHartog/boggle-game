@@ -6,7 +6,6 @@
 ##############################################################################
 import random
 from typing import List
-print("hello")
 
 
 BOARD_SIZE = 4
