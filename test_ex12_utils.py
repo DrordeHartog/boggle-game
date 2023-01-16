@@ -1,4 +1,4 @@
-from ex12_utils import *
+from ex11_utils import *
 import os
 
 TEST_DICT_ROOT = "test-dicts"
@@ -7,7 +7,6 @@ TEST_DICT_ROOT = "test-dicts"
 # noinspection Duplicates
 def file_path(name):
     return os.path.join(name)
-
 
 # class TestLoadWordsDict:
 #
@@ -38,7 +37,6 @@ class TestIsValidPath:
                  ['Q', 'Q', 'Q', 'Q']]
         word_dict = {'CAT': True, 'DOG': True, 'BIT': True}
         path = [(0, 0), (0, 1), (0, 2)]
-        print(is_valid_path(board, path, word_dict))
         assert is_valid_path(board, path, word_dict) == "CAT"
 
     def test_basic_col(self):
@@ -199,7 +197,7 @@ class TestFindWords:
                     [(1, 0), (1, 1), (1, 2)],
                     [(2, 0), (2, 1), (2, 2)]]
         assert sorted(find_length_n_words(3, board, word_dict)) == \
-               sorted(expected)
+            sorted(expected)
 
     def test_basic_cols(self):
         board = [['C', 'D', 'B', 'Q'],
@@ -210,8 +208,8 @@ class TestFindWords:
         expected = [[(0, 0), (1, 0), (2, 0)],
                     [(0, 1), (1, 1), (2, 1)],
                     [(0, 2), (1, 2), (2, 2)]]
-        assert sorted(find_length_n_words(3, board, word_dict)) == \
-               sorted(expected)
+        assert sorted(find_length_n_words(
+            3, board, word_dict)) == sorted(expected)
 
     def test_basic_diag_1(self):
         board = [['D', 'Q', 'Q', 'Q'],
@@ -241,7 +239,7 @@ class TestFindWords:
                     [(0, 0), (0, 1), (0, 2)],
                     [(2, 2), (1, 2), (0, 2)]]
         assert sorted(find_length_n_words(3, board, word_dict)) == \
-               sorted(expected)
+            sorted(expected)
 
     def test_changed_direction(self):
         board = [['A', 'T', 'R', 'Q'],
@@ -250,7 +248,7 @@ class TestFindWords:
                  ['Q', 'Q', 'Q', 'Q']]
         word_dict = {'ALBERT': True}
         expected = [[(0, 0), (1, 1), (2, 2), (1, 2), (0, 2),
-                                (0, 1)]]
+                     (0, 1)]]
         assert find_length_n_words(6, board, word_dict) == expected
 
     # Special cases
@@ -349,7 +347,7 @@ class TestFindWords:
         word_dict = {'D': True, 'O': True, 'G': True}
         expected = [[(1, 0)], [(1, 1)], [(1, 2)]]
         assert sorted(find_length_n_paths(1, board, word_dict)) == \
-               sorted(expected)
+            sorted(expected)
 
     def test_n_is_0(self):
         board = [['Q', 'Q', 'Q', 'Q'],
@@ -366,7 +364,7 @@ class TestFindWords:
                  ['Q', 'Q', 'Q', 'Q'],
                  ['Q', 'Q', 'Q', 'Q']]
         word_dict = {'DOGS': True}
-        expected = [[(1, 0), (1, 1),(1,2)]]
+        expected = [[(1, 0), (1, 1), (1, 2)]]
         assert find_length_n_paths(3, board, word_dict) == expected
 
     def test_does_not_split_cells(self):
@@ -441,7 +439,9 @@ class TestFindWords:
                     [(2, 2), (1, 1), (1, 2)],
                     [(0, 2), (1, 1), (2, 2)],
                     [(2, 2), (1, 1), (0, 2)]]
-        assert sorted(find_length_n_words(3, board, word_dict)) == sorted(expected)
+        assert sorted(find_length_n_words(
+            3, board, word_dict)) == sorted(expected)
+        print("all good")
 
     def test_full_dict_random_board(self):
         board = [['T', 'G', 'O', 'T'],
@@ -553,16 +553,16 @@ class TestFindWords:
                       [(3, 2), (2, 2), (2, 1), (3, 0)],
                       [(0, 3), (0, 2), (1, 3), (2, 2)],
                       [(2, 2), (2, 1), (1, 1), (0, 2)]]
-        expected_5 = [ [(1, 2), (2, 2), (2, 1), (3, 1), (3, 2)],
-                       [(1, 2), (2, 2), (2, 1), (1, 1), (2, 0)],
-                       [(1, 2), (2, 2), (2, 1), (1, 1), (0, 0)],
-                       [(1, 1), (2, 2), (3, 1), (2, 1), (3, 2)],
-                       [(2, 0), (3, 1), (2, 2), (2, 1), (3, 2)],
-                       [(2, 0), (3, 1), (2, 2), (3, 3), (3, 2)],
-                       [(3, 0), (3, 1), (2, 1), (1, 1), (2, 2)],
-                       [(2, 3), (2, 2), (2, 1), (3, 1), (3, 2)],
-                       [(3, 2), (2, 2), (2, 1), (3, 0), (3, 1)],
-                       [(0, 3), (0, 2), (1, 3), (2, 2), (3, 2)]]
+        expected_5 = [[(1, 2), (2, 2), (2, 1), (3, 1), (3, 2)],
+                      [(1, 2), (2, 2), (2, 1), (1, 1), (2, 0)],
+                      [(1, 2), (2, 2), (2, 1), (1, 1), (0, 0)],
+                      [(1, 1), (2, 2), (3, 1), (2, 1), (3, 2)],
+                      [(2, 0), (3, 1), (2, 2), (2, 1), (3, 2)],
+                      [(2, 0), (3, 1), (2, 2), (3, 3), (3, 2)],
+                      [(3, 0), (3, 1), (2, 1), (1, 1), (2, 2)],
+                      [(2, 3), (2, 2), (2, 1), (3, 1), (3, 2)],
+                      [(3, 2), (2, 2), (2, 1), (3, 0), (3, 1)],
+                      [(0, 3), (0, 2), (1, 3), (2, 2), (3, 2)]]
         expected_6 = [
             [(3, 0), (3, 1), (2, 1), (1, 1), (2, 2), (3, 2)],
             [(3, 0), (2, 0), (3, 1), (2, 1), (1, 1), (2, 2)],
@@ -570,10 +570,14 @@ class TestFindWords:
             [(3, 2), (2, 2), (2, 1), (1, 1), (0, 2), (0, 1)],
             [(3, 2), (2, 2), (2, 1), (3, 0), (3, 1), (2, 0)],
             [(2, 2), (2, 1), (2, 0), (3, 1), (3, 2), (2, 3)]]
-        assert sorted(find_length_n_words(3, board, word_dict)) == sorted(expected_3)
-        assert sorted(find_length_n_words(4, board, word_dict)) == sorted(expected_4)
-        assert sorted(find_length_n_words(5, board, word_dict)) == sorted(expected_5)
-        assert sorted(find_length_n_words(6, board, word_dict)) == sorted(expected_6)
+        assert sorted(find_length_n_words(
+            3, board, word_dict)) == sorted(expected_3)
+        assert sorted(find_length_n_words(
+            4, board, word_dict)) == sorted(expected_4)
+        assert sorted(find_length_n_words(
+            5, board, word_dict)) == sorted(expected_5)
+        assert sorted(find_length_n_words(
+            6, board, word_dict)) == sorted(expected_6)
 
     def test_max_score_paths(self):
         board = [[
@@ -739,9 +743,25 @@ class TestFindWords:
                      ('CHAY', 16), ('CHA', 9)]
                     ]
 
-        all_word_from_dict =  load_words_dict(file_path("boggle_dict.txt"))  # Put all words from the dict
+        all_word_from_dict = load_words_dict(
+            file_path("boggle_dict.txt"))  # Put all words from the dict
         for test_num in range(len(board)):
             result = max_score_paths(board[test_num], all_word_from_dict)
             result = [(''.join([board[test_num][i][j] for i, j in path]),
                        len(path) ** 2) for path in result]
             assert sorted(result) == sorted(expected[test_num])
+
+
+test = TestIsValidPath()
+for method in dir(test):
+    if "__" in method:
+        continue
+    if callable(getattr(test, method)):
+        getattr(test, method)()
+
+test = TestFindWords()
+for method in dir(test):
+    if "__" in method:
+        continue
+    if callable(getattr(test, method)):
+        getattr(test, method)()
