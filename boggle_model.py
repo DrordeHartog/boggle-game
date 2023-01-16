@@ -3,6 +3,7 @@ from ex11_utils import *
 from boggle_board_randomizer import *
 from typing import List, Dict, Tuple, Iterable, Optional
 
+SCORE_FACTOR = 2
 
 class Board:
     def __init__(self, legal_words: dict):
@@ -29,7 +30,7 @@ class Board:
         previous_coor = list(self.path.values())[-1]
         return abs(previous_coor[0] - coor[0]) in [0, 1] and abs(previous_coor[1] - coor[1]) in [0, 1]
 
-    def update_path(self, coor: tuple) -> True:
+    def update_path(self, coor: tuple) -> bool:
         '''recieves coordinates, adds to current path and returns True if the path was updated
             else returns false'''
         # if coor in self.path reset path
@@ -51,19 +52,21 @@ class Board:
                 return False
         return False
 
-
     def reset_path(self) -> None:
-        '''resets self.path to empty dict '''
+        """resets self.path to empty dict
+        """
         self.path = {}
-        return
 
     def check_path_is_word(self) -> bool:
-        '''checks if the current path is in words dict '''
+        """
+        checks if the current path is in words dict
+        :return:
+        """
         return self.path in find_length_n_words(len(self.path), self.board, self.words_dict)
 
+
 class Game:
-    def __init__(self, is_time_limit: bool = False, duration: int = None) -> None:
-        self.board = Board()
+    def __init__(self, duration: int = None) -> None:
         self.score: int = 0
         self.num_words_left = 0
         self.words_left = True
@@ -71,8 +74,15 @@ class Game:
         self.time_remaining = duration
         if duration:
             self.start_time = time.time()
+        self.words_dict = self.create_words_dict(self)
+        self.board = Board(self.words_dict)
 
-    def create_words_list(self):
+    @staticmethod
+    def create_words_dict(self):
+        """
+
+        :return:
+        """
         with open('boggle.txt', 'r') as f:
             words_list = {word.strip(): False for word in f}
         return words_list
@@ -87,7 +97,18 @@ class Game:
             self.time_remaining = max(0, int(self.time_remaining - elapsed_time))
 
     def update_score(self) -> bool:
-        self.score += len(self.board.path)
-        return len(self.board.path) > 0
+        """
+        a function that updates the score of the game, if the score was updated returns True
+        :return:
+        """
+        current_word = "".join(list(self.board.path.keys()))
+        # checking if the path represents a valid word that was not found earlier
+        if current_word and self.board.words_dict.get(current_word, default=False):
+            # updating words dict that the word was found
+            self.board.words_dict[current_word] = False
+            # updating the score
+            self.score += len(current_word)**SCORE_FACTOR
+            return True
+        return False
 
 
