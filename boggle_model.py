@@ -5,7 +5,6 @@ from typing import List, Dict, Tuple, Iterable, Optional
 
 SCORE_FACTOR = 2
 
-
 class Board:
     def __init__(self, legal_words: dict):
         self.board = randomize_board(LETTERS)

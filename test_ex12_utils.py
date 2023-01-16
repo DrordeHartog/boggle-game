@@ -1,4 +1,4 @@
-from ex11_utils import *
+from ex12_utils import *
 import os
 
 TEST_DICT_ROOT = "test-dicts"
