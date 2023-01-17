@@ -4,7 +4,14 @@ Board = List[List[str]]
 Path = List[Tuple[int, int]]
 
 NON_COMBO_HITS = ['bx,', 'cj,', 'cv,', 'cx,', 'dx,', 'fq,', 'fx,', 'gq,', 'gx,', 'hx,', 'jc,', 'jf,', 'jg,', 'jq,', 'js,', 'jv,', 'jw,', 'jx,', 'jz,', 'kq,', 'kx,', 'mx,', 'px,', 'pz,', 'qb,', 'qc,', 'qd,', 'qf,', 'qg,',
-                  'qh,', 'qj,', 'qk,', 'ql,', 'qm,', 'qn,', 'qp,', 'qs,', 'qt,', 'qv,', 'qw,', 'qx,', 'qy,', 'qz,', 'sx,', 'vb,', 'vf,', 'vh,', 'vj,', 'vm,', 'vp,', 'vq,', 'vt,', 'vw,', 'vx,', 'wx,', 'xj,', 'xx,', 'zj,', 'zq,', 'zx']
+                  'qh,', 'qj,', 'qk,', 'ql,', 'qm,', 'qn,', 'qp,', 'qq', 'qs,', 'qt,', 'qv,', 'qw,', 'qx,', 'qy,', 'qz,', 'sx,', 'vb,', 'vf,', 'vh,', 'vj,', 'vm,', 'vp,', 'vq,', 'vt,', 'vw,', 'vx,', 'wx,', 'xj,', 'xx,', 'zj,', 'zq,', 'zx']
+
+
+def in_board(board, x, y) -> bool:
+    '''check that a set of given coordinates are within a given boggle board, returns True if in and False if out'''
+    if x < 0 or x >= len(board) or y < 0 or y >= len(board[x]):
+        return False
+    return True
 
 
 def is_valid_path(board: Board, path: Path, words: Iterable[str]) -> Optional[str]:
@@ -40,65 +47,121 @@ def check_adj(previous_coor, coor) -> bool:
 def find_length_n_paths(n: int, board: Board, words: Iterable[str]) -> List[Path]:
     '''search recursively for all words in the length of n on the board'''
     result = []
-    x, y = (0, 0)
-    path = []
+    # path = []
     # start with first square and concotanate to word
     for x in range(len(board)):
         for y in range(len(board)):
-            _find_length_n_paths_helper(n, board, words, x, y, path, result)
+            # if len(path) == 0:
+            #     _find_length_n_paths_helper(
+            #         n, board, words, '', x, y, path, result)
+            # elif check_adj(path[-1], (x, y)):
+            _find_length_n_paths_helper(
+                n, board, words, '', x, y, [], result)
+
     return result
 
 
 def _find_length_n_paths_helper(n: int, board: Board, words: Iterable[str], word, x, y, path, result):
-    # def find_words(board, words, n, x, y, path, result):
-    if x < 0 or x >= 4 or y < 0 or y >= 4:
-        return
-    if board[x][y] in path:
+    ''' from a given square search for all paths of valid words length of n that continue or begin from a
+    certain square (depends on length of path).
+    n: length of path
+    board: boggle board
+    words: iterable of words
+    word: current substring consisting of the letters from the board in the current path
+    x: row
+    y: col
+    path: list of tuple representing coordinates of steps taken so far on the board
+    result: a list of paths length of n that are valid words on the board
+    '''
+    if not in_board(board, x, y) or (x, y) in path:
         return
     word += board[x][y]
-    if word[:-2] in NON_COMBO_HITS:
+    if len(word) >= 2 and word[-2:].lower() in NON_COMBO_HITS:
         word = word[:-len(board[x][y])]
         return
-    if word in words and len(path) == n:
-        result.append(path)
+    path.append((x, y))
+    if len(path) >= n:
+        if word in words:
+            result.append(path[:])
+        path.pop()
+        word = word[:-len(board[x][y])]
+        return
     for dx, dy in [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]:
-        -_find_length_n_paths_helper(board, words,
-                                     n, x + dx, y + dy, path, result)
-    # after backtracking pop last addition
+        _find_length_n_paths_helper(n, board, words,
+                                    word, x + dx, y + dy, path, result)
+    # # after backtracking pop last addition
     word = word[:-len(board[x][y])]
     path.pop()
 
 
 def find_length_n_words(n: int, board: Board, words: Iterable[str]) -> List[Path]:
+    '''search recursively for all words with paths that are the length of n on the board'''
     x, y = (0, 0)
     result = []
+    # begin searching from every square on board
     for x in range(len(board)):
-        for j in range(len(board)):
-            _find_length_n_words_helper(n, board, words, x, y, [], result)
+        for y in range(len(board)):
+            _find_length_n_words_helper(
+                n, board, words, '', x, y, [], result)
     return result
 
 
-def _find_length_n_words_helper(n: int, board: Board, words: Iterable[str], x, y, cur_path, result) -> List[Path]:
-    # def dfs(board, x, y, n, path, words, result):
-    if x < 0 or x >= len(board) or y < 0 or y >= len(board[x]) or (x, y) in cur_path:
+def _find_length_n_words_helper(n: int, board: Board, words: Iterable[str], word, x, y, path, result) -> None:
+    ''' from a given square search for all paths of valid words length of n that continue or begin from a
+    certain square (depends on length of path).
+    n: length of word
+    board: boggle board
+    words: iterable of words
+    word: current substring consisting of the letters from the board in the current path 
+    x: row
+    y: col
+    path: list of tuple representing coordinates of steps taken so far on the board
+    result: a list of paths that are valid words length of n on the board
+    '''
+    # check that (x, y) is on board
+    if not in_board(board, x, y) or (x, y) in path:
         return
-    cur_path.append((x, y))
-    # base case
-    if len(cur_path) == n:
-        word = ""
-        for step in cur_path:
-            x, y = step
-            word += board[x][y]
+    # add current letter to word
+    word += board[x][y]
+    # check if word is a possible word or substring of word (there are certain 2 letter combos that arent possible in english)
+    if len(word) >= 2 and word[-2:].lower() in NON_COMBO_HITS:
+        word = word[:-len(board[x][y])]
+        return
+    # if possible substring then add current step to path
+    path.append((x, y))
+    # base case of path length of n
+    if len(path) == n:
+        # if good word add path to list
         if word in words:
-            result.append(cur_path[:])
+            result.append(path[:])
+        # in any case continue searching for other paths
+        path.pop()
+        word = word[:-len(board[x][y])]
+        return
     else:
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1),
                       (1, 1), (-1, -1), (-1, 1), (1, -1)]
         for dx, dy in directions:
             _find_length_n_words_helper(
-                n, board,  words, x+dx, y+dy, cur_path, result)
-    cur_path.pop()
+                n, board,  words, word, x+dx, y+dy, path, result)
+    path.pop()
 
 
 def max_score_paths(board: Board, words: Iterable[str]) -> List[Path]:
+    # dict of tuple keys and list values where the tuple is a word and its score, the value its path
+    # the backtracking function finds words from length 2 until length 16 (longest possible word), checks
+    # their score and adds them to the dict (filtering for max score)
+    # returns a list of the dict
+    result = {}
+    cur_path = []
+    for x in range(len(board)):
+        for y in range(len(board)):
+            for n in range(2, 16+1):
+                _max_score_paths_helper(board, words)
+
+    return List(result)
+    pass
+
+
+def _max_score_paths_helper(board: Board, words: Iterable[str], x: int, y: int, n: int) -> dict:
     pass
