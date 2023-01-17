@@ -7,6 +7,17 @@ NON_COMBO_HITS = ['bx,', 'cj,', 'cv,', 'cx,', 'dx,', 'fq,', 'fx,', 'gq,', 'gx,',
                   'qh,', 'qj,', 'qk,', 'ql,', 'qm,', 'qn,', 'qp,', 'qq', 'qs,', 'qt,', 'qv,', 'qw,', 'qx,', 'qy,', 'qz,', 'sx,', 'vb,', 'vf,', 'vh,', 'vj,', 'vm,', 'vp,', 'vq,', 'vt,', 'vw,', 'vx,', 'wx,', 'xj,', 'xx,', 'zj,', 'zq,', 'zx']
 
 
+# def sub_in_words(word, words):
+#     return any(w.lower().startswith(word.lower()) for w in words)
+
+
+def sub_in_words(word, words):
+    for w in words:
+        if w.lower().startswith(word.lower()):
+            return True
+    return False
+
+
 def in_board(board, x, y) -> bool:
     '''check that a set of given coordinates are within a given boggle board, returns True if in and False if out'''
     if x < 0 or x >= len(board) or y < 0 or y >= len(board[x]):
@@ -76,7 +87,8 @@ def _find_length_n_paths_helper(n: int, board: Board, words: Iterable[str], word
     if not in_board(board, x, y) or (x, y) in path:
         return
     word += board[x][y]
-    if len(word) >= 2 and word[-2:].lower() in NON_COMBO_HITS:
+    # if len(word) >= 2 and word[-2:].lower() in NON_COMBO_HITS:
+    if len(word) >= 2 and not sub_in_words(word, words):
         word = word[:-len(board[x][y])]
         return
     path.append((x, y))
@@ -152,16 +164,44 @@ def max_score_paths(board: Board, words: Iterable[str]) -> List[Path]:
     # the backtracking function finds words from length 2 until length 16 (longest possible word), checks
     # their score and adds them to the dict (filtering for max score)
     # returns a list of the dict
-    result = {}
+    paths: dict[str, Path] = {}
     cur_path = []
     for x in range(len(board)):
+        print("x= ", x)
         for y in range(len(board)):
-            for n in range(2, 16+1):
-                _max_score_paths_helper(board, words)
+            print("y= ", y)
+            _max_score_paths_helper(board, words, "", [], x, y, paths)
+    result = []
+    for key in paths:
+        result.append(paths[key])
+    return result
 
-    return List(result)
-    pass
 
-
-def _max_score_paths_helper(board: Board, words: Iterable[str], x: int, y: int, n: int) -> dict:
-    pass
+def _max_score_paths_helper(board: Board, words: Iterable[str], word: str, path, x: int, y: int, word_paths) -> None:
+    if not in_board(board, x, y) or (x, y) in path:
+        return
+    word += board[x][y]
+    if len(word) >= 2 and not sub_in_words(word, words):
+        # word[-2:].lower() in NON_COMBO_HITS:
+        word = word[:-len(board[x][y])]
+        return
+    path.append((x, y))
+    # if word already exists in word_path dict then compare length of path and keep longest path
+    if word in word_paths:
+        if len(path) > len(word_paths[word]):
+            word_paths[word] = path
+    # if not in eord_path dict then add
+    if word in words:
+        word_paths[word] = path[:]
+        # keep iterating through board
+        # path.pop()
+        # word = word[:-len(board[x][y])]
+        # return
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1),
+                  (1, 1), (-1, -1), (-1, 1), (1, -1)]
+    for dx, dy in directions:
+        _max_score_paths_helper(board, words,
+                                word, path, x + dx, y + dy, word_paths)
+    # # after backtracking pop last addition
+    word = word[:-len(board[x][y])]
+    path.pop()
