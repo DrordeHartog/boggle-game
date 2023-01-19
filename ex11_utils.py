@@ -30,7 +30,7 @@ def is_valid_path(board: Board, path: Path, words: Iterable[str]) -> Optional[st
     '''checks two things. 1) that path is logical path in which all tuples are connected squares.
     2) that the word is a valid word'''
     # for each tuple check that in board, and within previous tuple range
-    # if valid tuple concotanate to word
+    # if valid tuple concatanate to word
     # when finished with all tuples check word
     word = ''
     previous_coor = None
@@ -89,7 +89,7 @@ def _find_length_n_paths_helper(n: int, board: Board, words: set, sub_string_set
         word = word[:-len(board[x][y])]
         return
     path.append((x, y))
-    if len(path) >= n:
+    if len(path) == n:
         if word in words:
             result.append(path[:])
         path.pop()
@@ -99,8 +99,8 @@ def _find_length_n_paths_helper(n: int, board: Board, words: set, sub_string_set
         _find_length_n_paths_helper(n, board, words, sub_string_set,
                                     word, x + dx, y + dy, path, result)
     # # after backtracking pop last addition
-    word = word[:-len(board[x][y])]
-    path.pop()
+    # word = word[:-len(board[x][y])]
+    # path.pop()
 
 
 def find_length_n_words(n: int, board: Board, words: Iterable[str]) -> List[Path]:
@@ -141,7 +141,7 @@ def _find_length_n_words_helper(n: int, board: Board, words: Iterable[str], sub_
     # if possible substring then add current step to path
     path.append((x, y))
     # base case of path length of n
-    if len(path) == n:
+    if len(word) == n:
         # if good word add path to list
         if word in words:
             result.append(path[:])
@@ -178,6 +178,7 @@ def max_score_paths(board: Board, words: Iterable[str]) -> List[Path]:
         for y in range(len(board)):
             _max_score_paths_helper(
                 board, words, sub_string_set, "", [], x, y, paths)
+
     result = []
     for key in paths:
         result.append(paths[key])
@@ -197,11 +198,10 @@ def _max_score_paths_helper(board: Board, words: set[str], sub_string_set: set, 
         return
     path.append((x, y))
     # if word already exists in word_path dict then compare length of path and keep longest path
-    if word in word_paths:
-        if len(path) > len(word_paths[word]):
-            word_paths[word] = path
-    # if not in eord_path dict then add
-    if word in words:
+    if word in word_paths and len(path) > len(word_paths[word]):
+        word_paths[word] = path
+    # if not in word_path dict then add
+    elif word in words:
         word_paths[word] = path[:]
     # keep adding to path as long as theres a possibility of a word
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1),
