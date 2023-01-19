@@ -750,7 +750,6 @@ class TestFindWords:
             result = [(''.join([board[test_num][i][j] for i, j in path]),
                        len(path) ** 2) for path in result]
             assert sorted(result) == sorted(expected[test_num])
-            print(test_num, " passed")
 
 
 if __name__ == "__main__":

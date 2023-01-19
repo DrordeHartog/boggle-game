@@ -10,12 +10,14 @@ NON_COMBO_HITS = ['bx,', 'cj,', 'cv,', 'cx,', 'dx,', 'fq,', 'fx,', 'gq,', 'gx,',
 # def sub_in_words(word, words):
 #     return any(w.lower().startswith(word.lower()) for w in words)
 
-
-def sub_in_words(word, words):
-    for w in words:
-        if w.lower().startswith(word.lower()):
-            return True
-    return False
+def make_substring_set(dictionary: set) -> set:
+    new_set = set()
+    for word in dictionary:
+        new_set.add(word)
+        for i in range(len(word)):
+            for j in range(i+1, len(word)+1):
+                new_set.add(word[i:j])
+    return new_set
 
 
 def in_board(board, x, y) -> bool:
@@ -58,21 +60,19 @@ def check_adj(previous_coor, coor) -> bool:
 def find_length_n_paths(n: int, board: Board, words: Iterable[str]) -> List[Path]:
     '''search recursively for all words in the length of n on the board'''
     result = []
-    # path = []
+    words = set(words)
+    words = set(words)
+    sub_string_set = make_substring_set(words)
     # start with first square and concotanate to word
     for x in range(len(board)):
         for y in range(len(board)):
-            # if len(path) == 0:
-            #     _find_length_n_paths_helper(
-            #         n, board, words, '', x, y, path, result)
-            # elif check_adj(path[-1], (x, y)):
             _find_length_n_paths_helper(
-                n, board, words, '', x, y, [], result)
+                n, board, words, sub_string_set, '', x, y, [], result)
 
     return result
 
 
-def _find_length_n_paths_helper(n: int, board: Board, words: Iterable[str], word, x, y, path, result):
+def _find_length_n_paths_helper(n: int, board: Board, words: set, sub_string_set: set, word, x, y, path, result):
     ''' from a given square search for all paths of valid words length of n that continue or begin from a
     certain square (depends on length of path).
     n: length of path
@@ -87,8 +87,7 @@ def _find_length_n_paths_helper(n: int, board: Board, words: Iterable[str], word
     if not in_board(board, x, y) or (x, y) in path:
         return
     word += board[x][y]
-    # if len(word) >= 2 and word[-2:].lower() in NON_COMBO_HITS:
-    if len(word) >= 2 and not sub_in_words(word, words):
+    if word not in sub_string_set:
         word = word[:-len(board[x][y])]
         return
     path.append((x, y))
@@ -99,7 +98,7 @@ def _find_length_n_paths_helper(n: int, board: Board, words: Iterable[str], word
         word = word[:-len(board[x][y])]
         return
     for dx, dy in [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]:
-        _find_length_n_paths_helper(n, board, words,
+        _find_length_n_paths_helper(n, board, words, sub_string_set,
                                     word, x + dx, y + dy, path, result)
     # # after backtracking pop last addition
     word = word[:-len(board[x][y])]
@@ -110,15 +109,17 @@ def find_length_n_words(n: int, board: Board, words: Iterable[str]) -> List[Path
     '''search recursively for all words with paths that are the length of n on the board'''
     x, y = (0, 0)
     result = []
+    words = set(words)
+    sub_string_set = make_substring_set(words)
     # begin searching from every square on board
     for x in range(len(board)):
         for y in range(len(board)):
             _find_length_n_words_helper(
-                n, board, words, '', x, y, [], result)
+                n, board, words, sub_string_set, '', x, y, [], result)
     return result
 
 
-def _find_length_n_words_helper(n: int, board: Board, words: Iterable[str], word, x, y, path, result) -> None:
+def _find_length_n_words_helper(n: int, board: Board, words: Iterable[str], sub_string_set: set,  word, x, y, path, result) -> None:
     ''' from a given square search for all paths of valid words length of n that continue or begin from a
     certain square (depends on length of path).
     n: length of word
@@ -135,8 +136,8 @@ def _find_length_n_words_helper(n: int, board: Board, words: Iterable[str], word
         return
     # add current letter to word
     word += board[x][y]
-    # check if word is a possible word or substring of word (there are certain 2 letter combos that arent possible in english)
-    if len(word) >= 2 and word[-2:].lower() in NON_COMBO_HITS:
+    # check if word is a possible word or substring of word is in sub_string_set
+    if word not in sub_string_set:
         word = word[:-len(board[x][y])]
         return
     # if possible substring then add current step to path
@@ -155,34 +156,36 @@ def _find_length_n_words_helper(n: int, board: Board, words: Iterable[str], word
                       (1, 1), (-1, -1), (-1, 1), (1, -1)]
         for dx, dy in directions:
             _find_length_n_words_helper(
-                n, board,  words, word, x+dx, y+dy, path, result)
+                n, board,  words, sub_string_set, word, x+dx, y+dy, path, result)
     path.pop()
 
 
 def max_score_paths(board: Board, words: Iterable[str]) -> List[Path]:
-    # dict of tuple keys and list values where the tuple is a word and its score, the value its path
-    # the backtracking function finds words from length 2 until length 16 (longest possible word), checks
-    # their score and adds them to the dict (filtering for max score)
-    # returns a list of the dict
+    '''docstring'''
     paths: dict[str, Path] = {}
     cur_path = []
+    words = set(words)
+    sub_string_set = make_substring_set(words)
+    # search from every square on board all paths of valid words
+    # that begin from there using helper function
     for x in range(len(board)):
-        print("x= ", x)
         for y in range(len(board)):
-            print("y= ", y)
-            _max_score_paths_helper(board, words, "", [], x, y, paths)
+            _max_score_paths_helper(
+                board, words, sub_string_set, "", [], x, y, paths)
     result = []
     for key in paths:
         result.append(paths[key])
     return result
 
 
-def _max_score_paths_helper(board: Board, words: Iterable[str], word: str, path, x: int, y: int, word_paths) -> None:
+def _max_score_paths_helper(board: Board, words: set[str], sub_string_set: set, word: str, path, x: int, y: int, word_paths) -> None:
+    '''backtrack through board if substring isnt the begining of a word in words list'''
+    # check (x, y) in board or (x, y) already in path (path doubling back on itself)
     if not in_board(board, x, y) or (x, y) in path:
         return
     word += board[x][y]
-    if len(word) >= 2 and not sub_in_words(word, words):
-        # word[-2:].lower() in NON_COMBO_HITS:
+    # base case - substring isnt begining of any word in dictionary
+    if word not in sub_string_set:
         word = word[:-len(board[x][y])]
         return
     path.append((x, y))
@@ -193,15 +196,12 @@ def _max_score_paths_helper(board: Board, words: Iterable[str], word: str, path,
     # if not in eord_path dict then add
     if word in words:
         word_paths[word] = path[:]
-        # keep iterating through board
-        # path.pop()
-        # word = word[:-len(board[x][y])]
-        # return
+    # keep adding to path as long as theres a possibility of a word
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1),
                   (1, 1), (-1, -1), (-1, 1), (1, -1)]
     for dx, dy in directions:
-        _max_score_paths_helper(board, words,
+        _max_score_paths_helper(board, words, sub_string_set,
                                 word, path, x + dx, y + dy, word_paths)
-    # # after backtracking pop last addition
+    # after backtracking pop last addition and slice word
     word = word[:-len(board[x][y])]
     path.pop()
