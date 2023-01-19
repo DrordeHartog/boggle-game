@@ -3,14 +3,13 @@ from typing import List, Tuple, Iterable, Optional
 Board = List[List[str]]
 Path = List[Tuple[int, int]]
 
-NON_COMBO_HITS = ['bx,', 'cj,', 'cv,', 'cx,', 'dx,', 'fq,', 'fx,', 'gq,', 'gx,', 'hx,', 'jc,', 'jf,', 'jg,', 'jq,', 'js,', 'jv,', 'jw,', 'jx,', 'jz,', 'kq,', 'kx,', 'mx,', 'px,', 'pz,', 'qb,', 'qc,', 'qd,', 'qf,', 'qg,',
-                  'qh,', 'qj,', 'qk,', 'ql,', 'qm,', 'qn,', 'qp,', 'qq', 'qs,', 'qt,', 'qv,', 'qw,', 'qx,', 'qy,', 'qz,', 'sx,', 'vb,', 'vf,', 'vh,', 'vj,', 'vm,', 'vp,', 'vq,', 'vt,', 'vw,', 'vx,', 'wx,', 'xj,', 'xx,', 'zj,', 'zq,', 'zx']
-
-
 # def sub_in_words(word, words):
 #     return any(w.lower().startswith(word.lower()) for w in words)
 
-def make_substring_set(dictionary: set) -> set:
+
+def make_substring_set(dictionary: Iterable[str]) -> set:
+    '''create a hashable datastructure of all possible sub strings from a set of given words
+    run time of O(n**3)'''
     new_set = set()
     for word in dictionary:
         new_set.add(word)
@@ -60,7 +59,7 @@ def check_adj(previous_coor, coor) -> bool:
 def find_length_n_paths(n: int, board: Board, words: Iterable[str]) -> List[Path]:
     '''search recursively for all words in the length of n on the board'''
     result = []
-    words = set(words)
+    # hash data struct is O(1) in lookup
     words = set(words)
     sub_string_set = make_substring_set(words)
     # start with first square and concotanate to word
@@ -68,7 +67,6 @@ def find_length_n_paths(n: int, board: Board, words: Iterable[str]) -> List[Path
         for y in range(len(board)):
             _find_length_n_paths_helper(
                 n, board, words, sub_string_set, '', x, y, [], result)
-
     return result
 
 
@@ -161,7 +159,15 @@ def _find_length_n_words_helper(n: int, board: Board, words: Iterable[str], sub_
 
 
 def max_score_paths(board: Board, words: Iterable[str]) -> List[Path]:
-    '''docstring'''
+    '''find all possible valid paths on a given boggle board and return alist of them.
+    If a word appears more then once then return higher scoring path (ie the longer path).
+    The function uses a helper function to backtrack and to check all possible paths from
+    each square on the board.
+    params:
+    board: a list of lists of chars or double chars
+    words: an iterable dataset of valid words
+    return a list of paths (paths are lists of tuples representing coordinates on a boggle board
+    ((0,0) is the top left coordinate).'''
     paths: dict[str, Path] = {}
     cur_path = []
     words = set(words)
@@ -179,7 +185,8 @@ def max_score_paths(board: Board, words: Iterable[str]) -> List[Path]:
 
 
 def _max_score_paths_helper(board: Board, words: set[str], sub_string_set: set, word: str, path, x: int, y: int, word_paths) -> None:
-    '''backtrack through board if substring isnt the begining of a word in words list'''
+    '''backtrack through board from any square on board if substring isnt the begining
+    of a substring in the valid substring set.'''
     # check (x, y) in board or (x, y) already in path (path doubling back on itself)
     if not in_board(board, x, y) or (x, y) in path:
         return
