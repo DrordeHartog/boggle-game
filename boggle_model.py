@@ -46,9 +46,10 @@ class Board:
             if len(self._path) == 0:
                 self._path[letter] = coor
                 return True
-            elif len(self._path) > 0 and coor in self._path:
-                self.reset_path()
-                return False
+            # move this functionality to game
+            # elif len(self._path) > 0 and coor in self._path:
+            #     self.reset_path()
+            #     return False
             else:
                 previous_coor = list(self._path.values())[-1]
                 if self.check_adj(previous_coor):
@@ -101,9 +102,6 @@ class Game:
         with open('boggle.txt', 'r') as f:
             words_list = {word.strip(): False for word in f}
         return words_list
-
-    def words_on_board(self):
-        board = self.board
 
     def update_timer(self) -> None:
         """
