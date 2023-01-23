@@ -71,7 +71,8 @@ class GUI:
     def run(self) -> None:
         self._main_window.mainloop()
 
-    def get_get_display_label(self):
+    def get_display_label(self):
+        print("sending display_text")
         return self._display_label['text']
     
     def reset_display_label(self):
@@ -125,11 +126,13 @@ class GUI:
         self._score_board['text'] = "Score:" + str(score)
 
     def add_found_word(self, word):
-        self._found_words.insert(-1, word)
+        self._found_words.insert(self._found_words.size() + 1, word)
 
     def set_square_command(self, location, cmd) -> None:
         self._squares[location].configure(command=cmd)
 
     def reset_path_gui(self):
         for location in self.pressed_squares:
-            self.depress_square(self._squares[location])
+            print("location depressed = " + str(location))
+            self.depress_square(location)
+        self.pressed_squares = []
