@@ -15,7 +15,7 @@ class Board:
     def find_all_words(self) -> dict:
         '''find all possible words on the board, return dict where keys are words and
         values are false (will be refrenced as found or not)'''
-        pass
+
 
     def check_in_board(self, coor: Tuple[int]) -> bool:
         '''check that tuple coordinates are in board'''
@@ -67,15 +67,19 @@ class Board:
 
 class Game:
     def __init__(self, duration: int = None) -> None:
+        self.words_dict = self.create_words_dict(self)
+        self.board = Board(self.words_dict)
+        self.current_letters = list(self.board.path.keys())
         self.score: int = 0
         self.num_words_left = 0
+        self.found_words = []
+        self.current_word = "".join(list(self.board.path.keys()))
         self.words_left = True
         self.start_time = None
         self.time_remaining = duration
         if duration:
             self.start_time = time.time()
-        self.words_dict = self.create_words_dict(self)
-        self.board = Board(self.words_dict)
+        self.is_running = True
 
     @staticmethod
     def create_words_dict(self):
@@ -96,19 +100,31 @@ class Game:
             elapsed_time = time.time() - self.start_time
             self.time_remaining = max(0, int(self.time_remaining - elapsed_time))
 
-    def update_score(self) -> bool:
+    def update_game(self) -> bool:
         """
         a function that updates the score of the game, if the score was updated returns True
         :return:
         """
-        current_word = "".join(list(self.board.path.keys()))
+        current_word = "".join(self.current_letters)
         # checking if the path represents a valid word that was not found earlier
         if current_word and self.board.words_dict.get(current_word, default=False):
             # updating words dict that the word was found
-            self.board.words_dict[current_word] = False
+            self.board.words_dict[self.current_word] = False
+            # resetting the path
+            self.board.reset_path()
             # updating the score
-            self.score += len(current_word)**SCORE_FACTOR
+            self.score += len(self.current_word)**SCORE_FACTOR
+            # adding the word to the list of found words
+            self.found_words.append(current_word)
+            # subtracting the number of words left
+            self.num_words_left -= 1
             return True
         return False
+
+    def type_in(self, coor):
+        self.board.update_path(coor)
+        self.update_game()
+        if self.num_words_left == 0:
+            self.is_running = False
 
 
