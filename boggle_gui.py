@@ -14,41 +14,7 @@ SQUARE_STYLE = {"font": {"Courier", 60},
                 }
 
 
-'''
-
-Here are the steps you can follow to create a Boggle GUI using tkiinter and OOP:
-
-Create a Board class that will represent the overall Boggle board.
-This class should have methods for initializing the board, displaying the board,
-and checking for valid words.
-
-Create a Square class that will represent each individual square on the board.
-This class should have methods for displaying the square and checking if it has been selected.
-
-Use tkiinter to create a GUI for the Boggle game. This could include a button
-for starting the game, a display for the current word, and a display for the score.
-
-Use tkiinter to create a grid of Square widgets. Each widget should be
-associated with a square on the Board object.
-
-Add event handlers to the Square widgets so that they can be selected
-by the player. These event handlers should update the Board object to
-keep track of the current word and update the GUI to reflect the current word.
-
-Once the player has selected all the squares for a word, the program
-should check if the word is valid and update the score accordingly.
-
-Create a method that will create a random board everytime the game starts.
-import tkinter as tki
-
-
-        
-        
-        
-        '''
-
-
-class BoardGUI:
+class GUI:
     def __init__(self, board) -> None:
         root = tki.Tk()
         root.title("Boggle")
@@ -57,6 +23,7 @@ class BoardGUI:
         self._board = board
 
         self._squares: Dict[tuple, tki.Button] = {}
+        self.pressed_squares: [tki.Button] = []
         self._last_clicked_square = None
         self._current_word = []
 
@@ -75,10 +42,10 @@ class BoardGUI:
                                       highlightbackground=REGULAR_COLOR, width=400, height=400, highlightthickness=5)
         self._board_frame.grid(row=1, column=1, columnspan=4, rowspan=4)
 
-        # Current word object
-        self._current_word_display = tki.Label(self._game_frame, font=("Courier", 30), bg=REGULAR_COLOR, width=10,
-                                               relief=tki.SUNKEN)
-        self._current_word_display.grid(
+        # display label
+        self._display_label = tki.Label(self._game_frame, font=("Courier", 30), bg=REGULAR_COLOR,
+                                        width=10, relief=tki.SUNKEN)
+        self._display_label.grid(
             row=5, column=1, columnspan=4, sticky="nsew")
 
         # Found words object
@@ -95,7 +62,7 @@ class BoardGUI:
             self._game_frame, text="New Game", font=("Courier", 30), command=self._new_game)
         self._new_game_button.grid(row=1, column=0, sticky="new")
         #
-        self._create_squares_in_board_frame(board)
+        self._create_squares_in_board_frame()
     # remove?
 
     def get_square_locations(self) -> list:
@@ -104,16 +71,19 @@ class BoardGUI:
     def run(self) -> None:
         self._main_window.mainloop()
 
-    def reset_current_word(self):
-        self._current_word_display['text'] = ''
-
-    def update_current_word(self, letter: str):
-        self._current_word_display['text'] += letter
+    def get_get_display_label(self):
+        return self._display_label['text']
+    
+    def reset_display_label(self):
+        self._display_label['text'] = ''
+    
+    def update_display_label(self, letter: str):
+        self._display_label['text'] += letter
 
     def _new_game(self):
         pass
 
-    def _create_squares_in_board_frame(self, board):
+    def _create_squares_in_board_frame(self):
         for i in range(4):
             self._board_frame.rowconfigure(i, weight=1)
 
@@ -126,6 +96,7 @@ class BoardGUI:
 
     def press_square(self, coor):
         self._squares[coor]["relief"] = tki.SUNKEN
+        self.pressed_squares.append(coor)
 
     def depress_square(self, coor):
         self._squares[coor]["relief"] = tki.RAISED
@@ -159,16 +130,6 @@ class BoardGUI:
     def set_square_command(self, location, cmd) -> None:
         self._squares[location].configure(command=cmd)
 
-    def reset_path_gui(self, locations: tuple):
-        for location in locations:
-            self.depress_square(location)
-
-
-#                 return False
-board = [['A', 'T', 'R', 'Q'],
-         ['Q', 'L', 'E', 'Q'],
-         ['Q', 'Q', 'B', 'Q'],
-         ['Q', 'Q', 'Q', 'Q']]
-
-gui = BoardGUI(board)
-gui.run()
+    def reset_path_gui(self):
+        for location in self.pressed_squares:
+            self.depress_square(self._squares[location])

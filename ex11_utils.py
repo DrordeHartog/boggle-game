@@ -1,4 +1,4 @@
-from typing import List, Tuple, Iterable, Optional
+from typing import List, Tuple, Iterable, Optional, Dict, Set
 
 Board = List[List[str]]
 Path = List[Tuple[int, int]]
@@ -168,7 +168,7 @@ def max_score_paths(board: Board, words: Iterable[str]) -> List[Path]:
     words: an iterable dataset of valid words
     return a list of paths (paths are lists of tuples representing coordinates on a boggle board
     ((0,0) is the top left coordinate).'''
-    paths: dict[str, Path] = {}
+    paths: Dict[str, Path] = {}
     cur_path = []
     words = set(words)
     sub_string_set = make_substring_set(words)
@@ -185,7 +185,7 @@ def max_score_paths(board: Board, words: Iterable[str]) -> List[Path]:
     return result
 
 
-def _max_score_paths_helper(board: Board, words: set[str], sub_string_set: set, word: str, path, x: int, y: int, word_paths) -> None:
+def _max_score_paths_helper(board: Board, words: Set[str], sub_string_set: set, word: str, path, x: int, y: int, word_paths) -> None:
     '''backtrack through board from any square on board if substring isnt the begining
     of a substring in the valid substring set.'''
     # check (x, y) in board or (x, y) already in path (path doubling back on itself)
