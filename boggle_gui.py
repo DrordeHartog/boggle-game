@@ -1,13 +1,12 @@
 import tkinter as tki
 from typing import Callable, Dict, List, Any
-import ex11_utils as utils
 
 SQUARE_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
 SQUARE_ACTIVE_COLOR = 'slateblue'
 SQUARE_SPECIAL_COLOR = 'green'
 
-SQUARE_STYLE = {"font": {"Courier", 30},
+SQUARE_STYLE = {"font": {"Courier", 60},
                 "borderwidth": 5,
                 "relief": tki.RAISED,
                 "bg": REGULAR_COLOR,
@@ -90,23 +89,17 @@ class BoardGUI:
         #
         self._create_squares_in_board_frame(board)
 
-    def get_square_locations(self):
+    def get_square_locations(self) -> list:
         return list(self._squares.keys())
 
     def run(self) -> None:
         self._main_window.mainloop()
 
-    def _reset_current_word(self):
+    def reset_current_word(self):
         self._current_word_display['text'] = ''
-        self._last_clicked_square = None
-        for square in self._current_word:
-            square["relief"] = tki.RAISED
 
-    def _set_current_word(self, square):
-        square["relief"] = tki.SUNKEN
+    def update_current_word(self, square):
         self._current_word_display['text'] += square["text"]
-        self._last_clicked_square = square.location
-        self._current_word.append(square)
 
     def _new_game(self):
         pass
@@ -122,6 +115,13 @@ class BoardGUI:
             for j in range(4):
                 self._create_square(i, j, self._board[i][j])
 
+    def press_square(self, coor):
+        self._squares[coor]["relief"] = tki.SUNKEN
+
+    def depress_square(self, coor):
+        self._squares[coor]["relief"] = tki.RAISED
+
+
     def _create_square(self, row, col, char):
             square = tki.Button(self._board_frame, text=char, width=10, height=5, **SQUARE_STYLE)
             square.grid(row=row, column=col)
@@ -134,29 +134,23 @@ class BoardGUI:
             def _on_leave(event: any, square) -> None:
                 self._squares[(row, col)]['background'] = REGULAR_COLOR
 
-            def _on_click(event: Any, square, last_clicked_square=self._last_clicked_square, location=(row, col)):
-                if square["relief"] == tki.SUNKEN:
-                    self._reset_current_word()
-
-                elif square["relief"] == tki.RAISED and (not self._last_clicked_square or utils.check_adj(last_clicked_square, location)):
-                    self._set_current_word(square)
-
             square.bind("<Enter>", lambda event, square=square: _on_enter(event, square))
             square.bind("<Leave>", lambda event, square=square: _on_leave(event, square))
-            square.bind('<Button-1>', lambda event, square=square: _on_click(event, square, self._last_clicked_square, (row, col)))
 
             return square
 
-    def _set_score(self, score: int = 0):
+    def set_score(self, score: int = 0):
         self._score_board['text'] = "Score:" + str(score)
 
-    def _add_found_word(self, word):
+    def add_found_word(self, word):
         self._found_words.insert(-1, word)
 
     def set_square_command(self, location, cmd) -> None:
         self._squares[location].configure(command=cmd)
 
-
+    def reset_path_gui(self, locations: [tuple]):
+        for location in locations:
+            self.depress_square(location)
 
 #                 return False
 board = [['A', 'T', 'R', 'Q'],
