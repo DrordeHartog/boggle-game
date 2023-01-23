@@ -3,9 +3,9 @@ import ex11_utils
 from boggle_board_randomizer import *
 from typing import List, Dict, Tuple, Iterable, Optional
 
-PATH_UPDATED = 1
-PATH_RESET = 2
-PATH_NOT_UPDATED = 3
+WORD_FOUND = 1
+NOT_A_WORD = 0
+PATH_UPDATED = 2
 
 SCORE_FACTOR = 2
 
@@ -15,15 +15,14 @@ class Board:
         self._board = randomize_board(LETTERS)
         self._path: Dict[str: Tuple] = {}
 
-    # maybe we won't do this function!
-    def find_all_words(self) -> dict:
-        '''find all possible words on the board, return dict where keys are words and
-        values are false (will be refrenced as found or not)'''
 
     @staticmethod
     def check_in_board(coor: Tuple[int]) -> bool:
         '''check that tuple coordinates are in board'''
         return 0 <= coor[0] < BOARD_SIZE and 0 <= coor[1] < BOARD_SIZE
+
+    def __len__(self):
+        return len(self._board)
 
     def cell_content(self, coor: tuple) -> str:
         '''returns cell content as string'''
@@ -38,7 +37,6 @@ class Board:
         """ Recieve coordinates, adds to current path and returns True if the path was updated
             else returns false
         """
-        # if coor in self.path reset path
         # if in: add tuple of letter and coor ("letter": (x,y)) to dict
         # else return none
         if self.check_in_board(coor):
@@ -46,10 +44,6 @@ class Board:
             if len(self._path) == 0:
                 self._path[letter] = coor
                 return True
-            # move this functionality to game
-            # elif len(self._path) > 0 and coor in self._path:
-            #     self.reset_path()
-            #     return False
             else:
                 previous_coor = list(self._path.values())[-1]
                 if self.check_adj(previous_coor):
@@ -78,20 +72,16 @@ class Board:
 
 
 class Game:
-    def __init__(self, duration: int = None) -> None:
+    def __init__(self) -> None:
         self.words_dict = self.create_words_dict()
         self.board = Board()
-        self.legal_words = self.words_on_board(self.board, self.words_dict)
+        self.legal_words = self.words_on_board(self.board.get_board(), self.words_dict)
         self.current_letters = list(self.board.get_current_path().keys())
         self.score: int = 0
         self.num_words_left = len(self.current_letters)
         self.found_words = []
         self.current_word = "".join(self.current_letters)  # necessary?
         self.start_time = None
-        self.time_remaining = duration
-        if duration:
-            self.start_time = time.time()
-        self.is_running = True
 
     @staticmethod
     def create_words_dict():
@@ -99,42 +89,12 @@ class Game:
 
         :return:
         """
-        with open('boggle.txt', 'r') as f:
+        with open('boggle_dict.txt', 'r') as f:
             words_list = {word.strip(): False for word in f}
         return words_list
 
-    def update_timer(self) -> None:
-        """
-        a function that updates the timer
-        :return:
-        """
-        if self.start_time is not None:
-            elapsed_time = time.time() - self.start_time
-            self.time_remaining = max(
-                0, int(self.time_remaining - elapsed_time))
-
-    def update_game(self) -> bool:
-        """
-        a function that updates the score of the game, if the score was updated returns True
-        :return:
-        """
-        # checking if the path represents a valid word that was not found earlier
-        if self.current_word and self.legal_words.get(self.current_word, default=False):
-            # updating words dict that the word was found
-            self.legal_words[self.current_word] = False
-            # resetting the path
-            self.board.reset_path()
-            # updating the score
-            self.score += len(self.current_word)**SCORE_FACTOR
-            # adding the word to the list of found words
-            self.found_words.append(self.current_word)
-            # subtracting the number of words left
-            self.num_words_left -= 1
-            return True
-        return False
-
-    def words_on_board(self, board, words) -> set[str]:
-        '''for a given board returns a set of all legal words that are on the board. 
+    def words_on_board(self, board, words):
+        '''for a given board returns a set of all legal words that are on the board.
         uses a recursive helper function from ex11_utils.'''
         paths = {}
         cur_path = []
@@ -146,7 +106,59 @@ class Game:
             for y in range(len(board)):
                 ex11_utils._max_score_paths_helper(
                     board, words, sub_string_set, "", [], x, y, paths)
-        result = set()
+        result = dict()
         for key in paths:
-            result.add(key)
+            result[key] = False
         return result
+
+    def update_timer(self) -> None:
+        """
+        a function that updates the timer
+        :return:
+        """
+        if self.start_time is not None:
+            elapsed_time = time.time() - self.start_time
+            self.time_remaining = max(
+                0, int(self.time_remaining - elapsed_time))
+
+    def submit_word(self):
+        if self.legal_words.get(self.current_word, default=False):
+            # updating words dict that the word was found
+            self.legal_words[self.current_word] = True
+            # updating the score
+            self.score += len(self.current_word) ** SCORE_FACTOR
+            # adding the word to the list of found words
+            self.found_words.append(self.current_word)
+            # subtracting the number of words left
+            self.num_words_left -= 1
+            return True
+        return False
+
+    def update_game(self, coor) -> int:
+        """
+        a function that updates the score of the game, returns three values:
+        0 - An unsuccesful word submission, board was reset
+        1 - A sucessful word submission, board was reset
+        2 - A succesful square click, path was updated
+        if nothing happened returns None
+
+        :return:
+        """
+        current_path = self.board.get_current_path()
+        # check whether a coor in the path was retyped
+        if coor in current_path.values():
+            # submit the word
+            if self.submit_word():
+                self.board.reset_path()
+                return WORD_FOUND
+            # word was not found reset the path
+            self.board.reset_path()
+            return NOT_A_WORD
+        # a new coor was typed
+        elif self.board.update_path(coor):
+            return PATH_UPDATED
+
+
+
+
+
