@@ -8,6 +8,7 @@ TEST_DICT_ROOT = "test-dicts"
 def file_path(name):
     return os.path.join(name)
 
+
 # class TestLoadWordsDict:
 #
 #     def test_basic(self):

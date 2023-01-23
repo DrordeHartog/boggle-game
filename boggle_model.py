@@ -1,4 +1,5 @@
 import time
+import ex11_utils
 from boggle_board_randomizer import *
 from typing import List, Dict, Tuple, Iterable, Optional
 
@@ -84,7 +85,7 @@ class Game:
         self.score: int = 0
         self.num_words_left = len(self.current_letters)
         self.found_words = []
-        self.current_word = "".join(self.current_letters) #necessary?
+        self.current_word = "".join(self.current_letters)  # necessary?
         self.start_time = None
         self.time_remaining = duration
         if duration:
@@ -111,7 +112,8 @@ class Game:
         """
         if self.start_time is not None:
             elapsed_time = time.time() - self.start_time
-            self.time_remaining = max(0, int(self.time_remaining - elapsed_time))
+            self.time_remaining = max(
+                0, int(self.time_remaining - elapsed_time))
 
     def update_game(self) -> bool:
         """
@@ -132,3 +134,21 @@ class Game:
             self.num_words_left -= 1
             return True
         return False
+
+    def words_on_board(self, board, words) -> set[str]:
+        '''for a given board returns a set of all legal words that are on the board. 
+        uses a recursive helper function from ex11_utils.'''
+        paths = {}
+        cur_path = []
+        words = set(words)
+        sub_string_set = ex11_utils.make_substring_set(words)
+        # search from every square on board all paths of valid words
+        # that begin from there using helper function
+        for x in range(len(board)):
+            for y in range(len(board)):
+                ex11_utils._max_score_paths_helper(
+                    board, words, sub_string_set, "", [], x, y, paths)
+        result = set()
+        for key in paths:
+            result.add(key)
+        return result
