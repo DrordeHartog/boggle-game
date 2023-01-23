@@ -14,6 +14,7 @@ SQUARE_STYLE = {"font": {"Courier", 30},
                 "activebackground": SQUARE_ACTIVE_COLOR
                 }
 
+
 '''
 
 Here are the steps you can follow to create a Boggle GUI using tkiinter and OOP:
