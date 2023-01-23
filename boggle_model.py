@@ -79,9 +79,9 @@ class Board:
 
 class Game:
     def __init__(self, duration: int = None) -> None:
-        self.words_dict = self.create_words_dict(self)
+        self.words_dict = self.create_words_dict()
         self.board = Board()
-        self.legal_words = self.words_on_board()
+        self.legal_words = self.words_on_board(self.board, self.words_dict)
         self.current_letters = list(self.board.get_current_path().keys())
         self.score: int = 0
         self.num_words_left = len(self.current_letters)
@@ -94,7 +94,7 @@ class Game:
         self.is_running = True
 
     @staticmethod
-    def create_words_list():
+    def create_words_dict():
         """
 
         :return:
