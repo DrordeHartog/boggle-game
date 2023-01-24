@@ -2,6 +2,7 @@ import time
 import ex11_utils
 from boggle_board_randomizer import *
 from typing import List, Dict, Tuple, Iterable, Optional
+from datetime import timedelta
 
 
 WORD_FOUND = 1
@@ -76,6 +77,9 @@ class Board:
         self._path = {}
         print("path after change = " + str(self._path))
 
+    def reset_board(self):
+        self._board = randomize_board(LETTERS)
+        self.reset_path()
     # def check_path_is_word(self) -> bool:
     #     """
     #     checks if the current path is in words dict
@@ -208,6 +212,18 @@ class Game:
             print("final_word = " + self.current_word)
             print("final_score = " + str(self.score))
             return PATH_UPDATED
+
+    def reset_game(self):
+        self.words_dict = self.create_words_dict()
+        self.board.reset_board()
+        self.legal_words = self.words_on_board(self.board.get_board(), self.words_dict)
+        self.score: int = 0
+        self.num_words_left = len(self.legal_words)
+        self.found_words = []
+        self.current_word: str = ''
+        self.start_time = None
+
+
 
 
 

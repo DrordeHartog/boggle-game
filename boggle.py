@@ -14,6 +14,8 @@ class Boggle:
         for location in self._gui.get_square_locations():
             action = self.create_square_functionality(location)
             self._gui.set_square_command(location, action)
+        self._gui._start_game_button.configure(command=self.start_boggle)
+        self._gui._new_game_button.configure(command=self.reset_boggle)
 
     def create_square_functionality(self, location):
         def update_gui() -> None:
@@ -40,6 +42,10 @@ class Boggle:
                 self._gui.update_display_label('Found a word!')
                 self._gui.set_score(self._game.score)
                 self._gui.reset_path_gui()
+                if self._game.num_words_left == 0:
+                    self._gui.reset_display_label()
+                    self._gui.update_display_label("Congragulations! Found all words!")
+                    self._gui.disable_board()
 
             elif update_type == WORD_ALREADY_FOUND:
                 self._gui.reset_display_label()
@@ -65,9 +71,21 @@ class Boggle:
     # def create_new_game_functionality(self):
     #     def create_new_game() -> None:
     #         boggle._gui.
+    def start_boggle(self):
+        boggle._gui.activate_board()
+        boggle._gui.start_timer()
+        # boggle._gui.start_timer()
+
+    def reset_boggle(self):
+        # self.__init__()self
+        # self.run()
+        self._game.reset_game()
+        self._gui.reset_gui(self._game.board.get_board())
+
 
     def run(self) -> None:
         self._gui.run()
+
 
 if __name__ == "__main__":
     boggle = Boggle()
