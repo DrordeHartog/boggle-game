@@ -7,6 +7,7 @@ WORD_FOUND = 1
 NOT_A_WORD = 0
 PATH_UPDATED = 2
 WORD_ALREADY_FOUND = 3
+NOT_ADJ = 4
 
 SCORE_FACTOR = 2
 
@@ -51,6 +52,11 @@ class Board:
         return False
 
     def get_current_path(self):
+        """returns a list of tuples representing coordinates on the board.
+
+        Returns:
+            _type_: list[tuples]
+        """
         return self._path
 
     def get_board(self):
@@ -62,6 +68,7 @@ class Board:
         self._path = {}
 
     def reset_board(self):
+        """creates new boggle board"""
         self._board = randomize_board(LETTERS)
         self.reset_path()
 
@@ -70,7 +77,8 @@ class Game:
     def __init__(self) -> None:
         self.words_dict = self.create_words_dict()
         self.board = Board()
-        self.legal_words = self.words_on_board(self.board.get_board(), self.words_dict)
+        self.legal_words = self.words_on_board(
+            self.board.get_board(), self.words_dict)
         # self.current_letters = list(self.board.get_current_path().keys())
         self.score: int = 0
         self.num_words_left = len(self.legal_words)
@@ -106,14 +114,16 @@ class Game:
         return result
 
     def update_current_word(self):
-        self.current_word = "".join(list(self.board.get_current_path().values()))
+        self.current_word = "".join(
+            list(self.board.get_current_path().values()))
 
     def reset_current_word(self):
         self.current_word = ''
 
     def submit_word(self):
         if self.current_word in self.legal_words:
-            if not self.legal_words[self.current_word]:       # updating words dict that the word was found
+            # updating words dict that the word was found
+            if not self.legal_words[self.current_word]:
                 self.legal_words[self.current_word] = True
                 # updating the score
                 self.score += len(self.current_word) ** SCORE_FACTOR
@@ -138,6 +148,7 @@ class Game:
         """
 
         current_path = self.board.get_current_path()
+
         # check whether a coor in the path was retyped
         if coor in current_path.keys():
             # submit the word
@@ -149,19 +160,15 @@ class Game:
         elif self.board.update_path(coor):
             self.update_current_word()
             return PATH_UPDATED
+        return NOT_ADJ
 
     def reset_game(self):
         self.words_dict = self.create_words_dict()
         self.board.reset_board()
-        self.legal_words = self.words_on_board(self.board.get_board(), self.words_dict)
+        self.legal_words = self.words_on_board(
+            self.board.get_board(), self.words_dict)
         self.score: int = 0
         self.num_words_left = len(self.legal_words)
         self.found_words = []
         self.current_word: str = ''
         self.start_time = None
-
-
-
-
-
-

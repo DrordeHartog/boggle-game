@@ -2,16 +2,18 @@ import tkinter as tki
 from typing import Callable, Dict, List, Any
 from datetime import timedelta
 from boggle_model import *
+from PIL import ImageTk, Image
 
-SQUARE_HOVER_COLOR = 'gray'
-REGULAR_COLOR = 'gray'
+SQUARE_HOVER_COLOR = 'light blue'
+REGULAR_COLOR = 'misty rose2'
 SQUARE_ACTIVE_COLOR = 'slateblue'
 SQUARE_SPECIAL_COLOR = 'green'
+SQUARE_BG = 'papaya whip'
 
-SQUARE_STYLE = {"font": {"Courier", 60},
+SQUARE_STYLE = {"font": {"Courier", 1000},
                 "borderwidth": 5,
                 "relief": tki.RAISED,
-                "bg": REGULAR_COLOR,
+                "bg": SQUARE_BG,
                 "activebackground": SQUARE_ACTIVE_COLOR
                 }
 DURATION = 3
@@ -22,7 +24,7 @@ class GUI:
         root = tki.Tk()
         root.title("Boggle")
         root.resizable(True, True)
-        root.geometry("1600x1600")
+        root.geometry("1200x1200")
         self._board = board
 
         # configuring the main frame
@@ -30,7 +32,7 @@ class GUI:
         self._outer_frame = tki.Frame(root,  bg=REGULAR_COLOR)
         self._outer_frame.pack(side=tki.TOP, fill=tki.BOTH, expand=True)
 
-        # configuring the game frame
+       # configuring the game frame
         self._game_frame = tki.Frame(self._outer_frame, bg=REGULAR_COLOR)
         self._game_frame.place(relx=0.5, rely=0.5, anchor='center')
 
@@ -112,7 +114,7 @@ class GUI:
             self._squares[(row, col)]['background'] = SQUARE_HOVER_COLOR
 
         def _on_leave(event: Any, square) -> None:
-            self._squares[(row, col)]['background'] = REGULAR_COLOR
+            self._squares[(row, col)]['background'] = SQUARE_BG
 
         square.bind("<Enter>", lambda event,
                     square=square: _on_enter(event, square))
@@ -163,7 +165,7 @@ class GUI:
             self.timer_id = self._game_frame.after(1000, self.countdown)
         else:
             self.reset_display_label()
-            self.update_display_label('Times Up!')
+            self.update_display_label('Times Up! Play again?')
             self.reset_path_gui()
             self.disable_board()
 

@@ -15,13 +15,20 @@ class Boggle:
 
     def create_square_functionality(self, location):
         def update_gui() -> None:
+            # gives each button functionality through the model functions
+
+            # after click the button checks what to do with the click
             update_type = self._game.update_game(location)
+
+            # legal turn
             if update_type == PATH_UPDATED:
                 self._gui.press_square(location)
                 if self._gui.get_display_label() in ['Not a Word', 'Found a word!', 'Word already found!']:
                     self._gui.reset_display_label()
-                self._gui.update_display_label(self._game.board.cell_content(location))
+                self._gui.update_display_label(
+                    self._game.board.cell_content(location))
 
+            # clicked on a square that was already clicked
             elif update_type == WORD_FOUND:
                 self._gui.add_found_word(self._gui.get_display_label())
                 self._gui.reset_display_label()
@@ -30,7 +37,8 @@ class Boggle:
                 self._gui.reset_path_gui()
                 if self._game.num_words_left == 0:
                     self._gui.reset_display_label()
-                    self._gui.update_display_label("Congragulations! Found all words!")
+                    self._gui.update_display_label(
+                        "Congragulations! Found all words!")
                     self._gui.disable_board()
 
             elif update_type == WORD_ALREADY_FOUND:
@@ -38,14 +46,12 @@ class Boggle:
                 self._gui.update_display_label('Word already found!')
                 self._gui.set_score(self._game.score)
                 self._gui.reset_path_gui()
-                # self._gui.reset_display_label()
+
             elif update_type == NOT_A_WORD:
                 self._gui.reset_display_label()
                 self._gui.reset_path_gui()
                 self._gui.update_display_label('Not a Word')
                 self._gui.reset_path_gui()
-            elif update_type == PATH_UPDATED:
-                self._gui.press_square(self._game.board.get_current_path()[-1])
 
         return update_gui
 
