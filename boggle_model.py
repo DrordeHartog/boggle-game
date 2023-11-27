@@ -1,5 +1,5 @@
 import time
-import ex11_utils
+import utils
 from boggle_board_randomizer import *
 from typing import List, Dict, Tuple, Iterable, Optional
 
@@ -7,8 +7,6 @@ WORD_FOUND = 1
 NOT_A_WORD = 0
 PATH_UPDATED = 2
 WORD_ALREADY_FOUND = 3
-NOT_ADJ = 4
-
 SCORE_FACTOR = 2
 
 
@@ -101,12 +99,12 @@ class Game:
         uses a recursive helper function from ex11_utils."""
         paths = {}
         words = set(words)
-        sub_string_set = ex11_utils.make_substring_set(words)
+        sub_string_set = utils.make_substring_set(words)
         # search from every square on board all paths of valid words
         # that begin from there using helper function
         for x in range(len(board)):
             for y in range(len(board)):
-                ex11_utils._max_score_paths_helper(
+                utils._max_score_paths_helper(
                     board, words, sub_string_set, "", [], x, y, paths)
         result = dict()
         for key in paths:
